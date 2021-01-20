@@ -1,0 +1,35 @@
+﻿@page "/copied"
+
+@using CloudCopy.Shared.Forms
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<RadzenDataList WrapItems="true" AllowPaging="true" Data="@copies" TItem="CopiedForm">
+    <Template Context="copy">
+        <RadzenCard Style="width:300px;">
+            <div class="row">
+                <div class="col-md-6">
+                    <b>@copy.CopiedEntityId) Device</b>
+                    <div>@copy.IpAddress</div>
+                    <b style="margin-top:20px">Copied Item</b>
+                    <div>@copy.Body</div>
+                </div>
+            </div>
+        </RadzenCard>
+    </Template>
+</RadzenDataList>
+
+@code
+{
+    IEnumerable<CopiedForm> copies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await HttpClient.GetFromJsonAsync<bool>("v1/Account/IsLoggedIn")) {
+            NavigationManager.NavigateTo("/");
+        }
+
+        copies = await HttpClient.GetFromJsonAsync<CopiedForm[]>("v1/Copied/Read");
+    }
+}

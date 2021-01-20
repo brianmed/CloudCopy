@@ -1,0 +1,54 @@
+@page "/login"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+
+<div class="row">
+    <div class="col-xl-6">
+        <h2>Admin Pin Code</h2>
+        <RadzenPassword @bind-Value=@PinCode />
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-6">
+        <RadzenButton Click=@SubmitAsync Text="Submit" Style="margin-top: 20px;" />
+    </div>
+</div>
+
+@code
+{
+    string PinCode { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+       if (!await HttpClient.GetFromJsonAsync<bool>("v1/Account/HasAdmin")) {
+           NavigationManager.NavigateTo("/");
+       }
+    }
+
+    async Task SubmitAsync()
+    {
+        MultipartFormDataContent multiContent = new MultipartFormDataContent();
+        StringContent pinCode = new StringContent(PinCode);
+        multiContent.Add(pinCode, "PinCode");
+
+        using (HttpResponseMessage response = await HttpClient.PostAsync("v1/Account/BlazorLogin", multiContent))
+        {
+            if (await response.Content.ReadFromJsonAsync<bool>()) {
+                NavigationManager.NavigateTo("/copied");
+            } else {
+                await DialogService.OpenAsync("Issue", ds =>
+                    @<div>
+                        <p Style="margin-bottom: 1rem">There was an issue</p>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                            </div>
+                        </div>
+                </div>);
+            }
+        }
+    }
+}

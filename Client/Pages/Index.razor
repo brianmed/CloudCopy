@@ -1,0 +1,20 @@
+@page "/"
+
+@using System.Net.Http
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        if (await HttpClient.GetFromJsonAsync<bool>("v1/Account/IsLoggedIn")) {
+            NavigationManager.NavigateTo("/copied");
+        } else if (!await HttpClient.GetFromJsonAsync<bool>("v1/Account/HasAdmin")) {
+            NavigationManager.NavigateTo("/register");
+        } else {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

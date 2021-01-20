@@ -1,0 +1,96 @@
+@page "/register"
+
+@using Radzen
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+
+@if (HasAdmin)
+{
+    <div class="row">
+        <div class="col-xl-6">
+            <h2>Amdin Pin Code Already Setup</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <RadzenButton Click=@Login Text="Login" Style="margin-top: 20px;" />
+        </div>
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-xl-6">
+            <h2>Setup Admin Pin Code</h2>
+            <RadzenPassword @bind-Value=@PinCode />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <RadzenButton Click=@(async () => await SubmitAsync()) Text="Submit" Style="margin-top: 20px;" />
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 15px">
+        <div class="col-xl-6">
+            <h6>Used for all future logins</h6>
+        </div>
+    </div>
+}
+
+@code
+{
+    string PinCode { get; set; }
+
+    bool HasAdmin { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HasAdmin = await HttpClient.GetFromJsonAsync<bool>("v1/Account/HasAdmin");
+    }
+
+    void Login()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    async Task SubmitAsync()
+    {
+        if (String.IsNullOrEmpty(PinCode)) {
+            await DialogService.OpenAsync("Issue", ds =>
+                @<div>
+                    <p Style="margin-bottom: 1rem">PinCode May Not Be Empty</p>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                        </div>
+                    </div>
+            </div>);
+        } else {
+            MultipartFormDataContent multiContent = new MultipartFormDataContent();
+            StringContent pinCode = new StringContent(PinCode);
+            multiContent.Add(pinCode, "PinCode");
+
+            using (HttpResponseMessage response = await HttpClient.PostAsync("v1/Account/Register", multiContent))
+            {
+                if (await response.Content.ReadFromJsonAsync<bool>()) {
+                    NavigationManager.NavigateTo("/");
+                } else {
+                    await DialogService.OpenAsync("Issue", ds =>
+                        @<div>
+                            <p Style="margin-bottom: 1rem">There was an issue</p>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <RadzenButton Text="Ok" Click="() => ds.Close(true)" Style="margin-bottom: 10px; width: 150px" />
+                                </div>
+                            </div>
+                    </div>);
+                }
+            }
+        }
+    }
+}

@@ -9,17 +9,17 @@ After running the server, then goto the hosted address in a browser so that the 
 ## Login
 
 ```bash
-CLOUDCOPY_JWT=$(curl --silent http://cloudcopy.bmedley.org/v1/Account/Login/MyPassword | jq -r .Jwt -)
+CLOUDCOPY_JWT=$(curl --silent http://cloudcopy.host.org/v1/Account/Login/MyPassword | jq -r .Jwt -)
 ```
 
 ## Copy
 
 ```bash
-curl -H "Authorization: Bearer $CLOUDCOPY_JWT" 'http://cloudcopy.bmedley.org/v1/Copied/Create/http://news.ycombinator.com'
+curl -H "Authorization: Bearer $CLOUDCOPY_JWT" 'http://cloudcopy.host.org/v1/Copied/Create/http://news.ycombinator.com'
 ```
 
 ## Paste
 
 ```bash
-curl -H "Authorization: Bearer $CLOUDCOPY_JWT" 'http://cloudcopy.bmedley.org/v1/Copied/Latest' | jq -r .Copy.Body -
+curl -H "Authorization: Bearer $CLOUDCOPY_JWT" 'http://cloudcopy.host.org/v1/Copied/Latest' | jq -r .Copy.Body -
 ```

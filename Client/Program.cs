@@ -20,6 +20,8 @@ namespace CloudCopy.Client
 
             builder.Services.AddScoped<DialogService>();
 
+            builder.Services.AddScoped<ClipboardService>();
+
             await builder.Build().RunAsync();
         }
     }

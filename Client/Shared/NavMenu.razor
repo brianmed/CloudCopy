@@ -5,20 +5,19 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass flex-grow-1" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Copied
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="add">
-                <span class="oi oi-plus" aria-hidden="true"></span> Add
-            </NavLink>
-        </li>
     </ul>
 </div>
+
+    <div style="height: 50px" class="@NavMenuCssClass ml-auto mr-auto">
+        <span style="color: white">Icons by</span> <a target="_blank" href="https://icons8.com">Icons8</a>
+    </div>
 
 @code
 {

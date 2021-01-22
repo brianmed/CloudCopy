@@ -4,23 +4,22 @@
 
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject ClipboardService ClipboardService
 
 <div class="row">
     <div class="col-xl-6">
         <div class="row">
             <div class="col">
-                <RadzenTemplateForm TItem="CopiedForm" Data=@model Submit=@(async () => await OnSubmitAsync(model))>
+                <RadzenTemplateForm TItem="CopiedForm" Data=@Model Submit=@(async () => await OnSubmitAsync(Model))>
                     <RadzenFieldset Text="Add">
                         <div class="row" style="margin-bottom: 48px">
-                            <div class="col-md-4 align-right">
-                                <RadzenLabel Text="Copied Text" />
-                            </div>
                             <div class="col">
-                                <RadzenTextBox style="display: block" Name="Text" @bind-Value=@model.Body />
+                                <RadzenTextBox style="display: block" Name="Text" @bind-Value=@Model.Body />
                                 <RadzenRequiredValidator Component="Text" Text="Copeid text is required" Popup=false Style="position: absolute"/>
                             </div>
                         </div>
-                        <RadzenButton ButtonType="ButtonType.Submit" Text="Submit" ></RadzenButton>
+                        <RadzenButton Click=@(async () => await OnPasteAsync()) Image="images/icons8-paste-64.png" ButtonStyle="ButtonStyle.Light" />
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Copy" class="mr-2" ></RadzenButton>
                     </RadzenFieldset>
                 </RadzenTemplateForm>
             </div>
@@ -35,6 +34,13 @@
                 <div class="col-md-6">
                     <b>@copy.CopiedEntityId) Device</b>
                     <div>@copy.IpAddress</div>
+                </div>
+                <div class="col-md-3">
+                    <RadzenButton Click=@(async (args) => await OnCopyAsync(@copy.Body)) Image="images/icons8-copy-64.png" ButtonStyle="ButtonStyle.Light" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
                     <b style="margin-top:20px">Body</b>
                     <div>@copy.Body</div>
                 </div>
@@ -48,7 +54,7 @@
 
 @code
 {
-    CopiedForm model = new CopiedForm();
+    CopiedForm Model = new CopiedForm();
 
     IEnumerable<CopiedForm> copies;
 
@@ -59,6 +65,16 @@
         }
 
         copies = await HttpClient.GetFromJsonAsync<CopiedForm[]>("v1/Copied/Read");
+    }
+
+    async Task OnPasteAsync()
+    {
+        Model.Body = await ClipboardService.ReadTextAsync();
+    }
+
+    async Task OnCopyAsync(string text)
+    {
+        await ClipboardService.WriteTextAsync(text);
     }
 
     async Task OnDeleteAsync(long copiedEntityId)

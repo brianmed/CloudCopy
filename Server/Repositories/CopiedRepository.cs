@@ -57,7 +57,7 @@ namespace CloudCopy.Server.Repositories
         async public Task<bool> DeleteAsync(long id)
         {
             CopiedEntity copy = await DbContext.Copies
-                .FirstOrDefaultAsync(t => t.CopiedEntityId == id);
+                .SingleAsync(t => t.CopiedEntityId == id);
 
             if (copy != null)
             {

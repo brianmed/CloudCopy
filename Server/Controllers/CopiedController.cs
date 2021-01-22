@@ -58,6 +58,15 @@ namespace CloudCopy.Server.Controllers
                 .Adapt<IEnumerable<CopiedForm>>();
         }
 
+        [HttpGet("{copiedEntityId}")]
+        async public Task Delete(long copiedEntityId)
+        {
+            Console.WriteLine("!!!");
+
+            await CopiedRepository
+                .DeleteAsync(copiedEntityId);
+        }
+
         [HttpGet]
         async public Task<JsonResult> Latest()
         {

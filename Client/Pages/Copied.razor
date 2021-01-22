@@ -5,15 +5,41 @@
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 
+<div class="row">
+    <div class="col-xl-6">
+        <div class="row">
+            <div class="col">
+                <RadzenTemplateForm TItem="CopiedForm" Data=@model Submit=@(async () => await OnSubmitAsync(model))>
+                    <RadzenFieldset Text="Add">
+                        <div class="row" style="margin-bottom: 48px">
+                            <div class="col-md-4 align-right">
+                                <RadzenLabel Text="Copied Text" />
+                            </div>
+                            <div class="col">
+                                <RadzenTextBox style="display: block" Name="Text" @bind-Value=@model.Body />
+                                <RadzenRequiredValidator Component="Text" Text="Copeid text is required" Popup=false Style="position: absolute"/>
+                            </div>
+                        </div>
+                        <RadzenButton ButtonType="ButtonType.Submit" Text="Submit" ></RadzenButton>
+                    </RadzenFieldset>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </div>
+</div>
+
 <RadzenDataList WrapItems="true" AllowPaging="true" Data="@copies" TItem="CopiedForm">
     <Template Context="copy">
-        <RadzenCard Style="width:300px;">
+        <RadzenCard Style="max-width: 300px;">
             <div class="row">
                 <div class="col-md-6">
                     <b>@copy.CopiedEntityId) Device</b>
                     <div>@copy.IpAddress</div>
-                    <b style="margin-top:20px">Copied Item</b>
+                    <b style="margin-top:20px">Body</b>
                     <div>@copy.Body</div>
+                </div>
+                <div class="col-md-3">
+                    <RadzenButton Click=@(async (args) => await OnDeleteAsync(@copy.CopiedEntityId)) Image="images/icons8-trash-52.png" ButtonStyle="ButtonStyle.Light" />
                 </div>
             </div>
         </RadzenCard>
@@ -22,6 +48,8 @@
 
 @code
 {
+    CopiedForm model = new CopiedForm();
+
     IEnumerable<CopiedForm> copies;
 
     protected override async Task OnInitializedAsync()
@@ -31,5 +59,19 @@
         }
 
         copies = await HttpClient.GetFromJsonAsync<CopiedForm[]>("v1/Copied/Read");
+    }
+
+    async Task OnDeleteAsync(long copiedEntityId)
+    {
+        await HttpClient.GetAsync($"v1/Copied/Delete/{copiedEntityId}");
+
+        copies = await HttpClient.GetFromJsonAsync<CopiedForm[]>("v1/Copied/Read");
+    }
+
+    async Task OnSubmitAsync(CopiedForm model)
+    {
+        await HttpClient.GetAsync($"v1/Copied/Create/{model.Body}");
+
+        NavigationManager.NavigateTo("/");
     }
 }

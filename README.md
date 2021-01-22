@@ -23,3 +23,6 @@ curl -H "Authorization: Bearer $CLOUDCOPY_JWT" 'http://cloudcopy.host.org/v1/Cop
 ```bash
 curl -H "Authorization: Bearer $CLOUDCOPY_JWT" 'http://cloudcopy.host.org/v1/Copied/Latest' | jq -r .Copy.Body -
 ```
+
+## Screenshot
+![Screenshot](http://bmedley.org/adhoc/cloudCopyScreenShot.png)
